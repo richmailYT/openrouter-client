@@ -1,0 +1,23 @@
+{
+  "name": "openrouter-client",
+  "description": "An API wrapper for OpenRouter",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "version": "1.0.1",
+  "license": "MIT",
+  "keywords": [
+    "openrouter"
+  ],
+  "author": "eofr",
+  "homepage": "https://github.com/richmailYT/openrouter-client",
+  "repository": {
+    "url": "git+https://github.com/richmailYT/openrouter-client.git"
+  },
+  "scripts": {
+    "build": "tsup"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}
