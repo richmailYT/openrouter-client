@@ -1,4 +1,4 @@
-export type TQuantizations =
+export type Quantizations =
   | 'int4'
   | 'int8'
   | 'fp6'
@@ -7,20 +7,18 @@ export type TQuantizations =
   | 'bf16'
   | 'unknown';
 
-export interface IConfig {
+export type Config = {
   //Headers
   httpReferer?: string;
   xTitle?: string;
   //Actual config
-
-  model?: string;
   response_format?: { type: 'json_object' };
 
   // https://openrouter.ai/docs/provider-routing
   provider?: {
     order?: string[];
     ignore?: string[];
-    quantizations?: TQuantizations[];
+    quantizations?: Quantizations[];
     data_collection?: 'allow' | 'deny';
     allow_fallbacks?: boolean;
     require_parameters?: boolean;
@@ -41,28 +39,32 @@ export interface IConfig {
   repetition_penalty?: number; // Range: (0, 2]
   seed?: number; // OpenAI only
 
-  tools?: TTool[];
-  tool_choice?: TToolChoice;
+  tools?: Tool[];
+  tool_choice?: ToolChoice;
 
   //OpenRouter only. Will not be passed to providers
   //openrouter.ai/docs/transforms
   transforms?: ['middle-out'] | [];
+} & ({
+  model: string[];
+  route: 'fallback';
+} | {
+  model?: string;
+  route?: undefined;
+})
 
-  router?: 'fallback';
-}
-
-type TFunctionDescription = {
+type FunctionDescription = {
   description?: string;
   name: string;
   parameters: object; // JSON Schema object
 };
 
-export type TTool = {
+export type Tool = {
   type: 'function';
-  function: TFunctionDescription;
+  function: FunctionDescription;
 };
 
-export type TToolChoice =
+export type ToolChoice =
   | 'none'
   | 'auto'
   | {
@@ -72,29 +74,29 @@ export type TToolChoice =
     };
   };
 
-export type IVerboseContent = {}
+export type VerboseContent = {}
   | { type: 'text'; content: string }
   | { type: 'image_url'; image_url: { url: string } };
 
-export interface IMessage {
+export interface Message {
   role: 'system' | 'user' | 'assistant';
-  content: string | IVerboseContent;
+  content: string | VerboseContent;
 }
 
-export type TError = {
+export type Error = {
   code: number; // See "Error Handling" section
   message: string;
 };
 
-export type TFunctionCall = {
+export type FunctionCall = {
   name: string;
   arguments: string; // JSON format arguments
 };
 
-export type TToolCall = {
+export type ToolCall = {
   id: string;
   type: 'function';
-  function: TFunctionCall;
+  function: FunctionCall;
 };
 
 export interface ResponseChoiceNonStreaming {
@@ -102,12 +104,12 @@ export interface ResponseChoiceNonStreaming {
   message: {
     content: string | null;
     role: string;
-    tool_calls?: TToolCall[];
+    tool_calls?: ToolCall[];
   };
-  error?: TError;
+  error?: Error;
 }
 
-export interface IResponseUsage {
+export interface ResponseUsage {
   /** Including images and tools if any */
   prompt_tokens: number;
   /** The tokens generated */
@@ -116,7 +118,7 @@ export interface IResponseUsage {
   total_tokens: number;
 }
 
-export interface IResponseSuccess {
+export interface ResponseSuccess {
   id: string;
 
   choices: ResponseChoiceNonStreaming[];
@@ -124,10 +126,10 @@ export interface IResponseSuccess {
   model: string;
 
   system_fingerprint?: string; // Only present if the provider supports it
-  usage?: IResponseUsage;
+  usage?: ResponseUsage;
 }
 
-export interface IResponseError {
+export interface ResponseError {
   error: {
     status: number;
     message: string;
@@ -135,7 +137,7 @@ export interface IResponseError {
   };
 }
 
-export interface IGenerationStats {
+export interface GenerationStats {
   data: {
     id: string;
     model: string;
@@ -167,18 +169,18 @@ export const errorCodesAndMesssages = {
 
 export class OpenRouter {
   apiKey: string;
-  globalConfig: IConfig;
+  globalConfig: Config;
 
-  constructor(apiKey: string, globalConfig?: IConfig) {
+  constructor(apiKey: string, globalConfig?: Config) {
     this.apiKey = apiKey;
     this.globalConfig = globalConfig || {};
   }
 
   async chat(
-    messages: IMessage[],
-    config?: IConfig
+    messages: Message[],
+    config?: Config
   ): Promise<
-    | { success: true; data: IResponseSuccess }
+    | { success: true; data: ResponseSuccess }
     | {
       success: false;
       errorCode: number;
@@ -209,7 +211,7 @@ export class OpenRouter {
         body: JSON.stringify({ messages: messages, ...config }),
       }
     );
-    const response: IResponseSuccess | IResponseError = await request.json();
+    const response: ResponseSuccess | ResponseError = await request.json();
     if ('error' in response) {
       return {
         success: false,
@@ -222,7 +224,7 @@ export class OpenRouter {
     return { success: true, data: response };
   }
 
-  async getGenerationStats(id: string): Promise<IGenerationStats> {
+  async getGenerationStats(id: string): Promise<GenerationStats> {
     const request = await fetch(
       `https://openrouter.ai/api/v1/generation?id=${id}`
     );
