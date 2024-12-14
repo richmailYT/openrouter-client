@@ -112,7 +112,7 @@ export class OpenRouterStream extends EventEmitter {
       }
     );
 
-    if (!request.ok) {
+    if (!request.ok || request.body === null) {
       const errorText = await request.text(); // Get error message from response
       this.emit('error', new Error(`HTTP error ${request.status}: ${errorText}`));
       return; // Important: Stop execution on error
@@ -169,7 +169,7 @@ export class OpenRouterStream extends EventEmitter {
       }
     );
 
-    if (!request.ok) {
+    if (!request.ok || request.body === null) {
       const errorText = await request.text(); // Get error message from response
       this.emit('error', new Error(`HTTP error ${request.status}: ${errorText}`));
       return;
