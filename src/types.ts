@@ -7,12 +7,37 @@ export type Quantizations =
     | 'bf16'
     | 'unknown';
 
+type ResponseFormatTypes = "string" | "number" | "boolean";
+type ResponseFormatObject = {
+    type: "object";
+    properties: Record<string, {
+        type: ResponseFormatTypes | ResponseFormatTypes[];
+        description?: string;
+        enum?: any[];
+    }>;
+    required?: string[];
+    additionalProperties?: boolean;
+};
+
+type ResponseFormatArray = {
+    type: "array";
+    items: ResponseFormatObject | ResponseFormatArray;
+};
+
 export type Config = {
     //Headers
     httpReferer?: string;
     xTitle?: string;
+
     //Actual config
-    response_format?: { type: 'json_object' };
+    response_format?: { type: 'json_object' } | {
+        type: 'json_schema';
+        json_schema: {
+            name: string;
+            strict: boolean;
+            schema: ResponseFormatObject;
+        };
+    };
 
     // https://openrouter.ai/docs/provider-routing
     provider?: {
