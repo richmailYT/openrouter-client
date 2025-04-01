@@ -121,15 +121,17 @@ export class OpenRouterStream extends EventEmitter {
     const reader = request.body.getReader();
     const decoder = new TextDecoder("utf-8");
 
+    let buffer = "";
     while (true) {
       const { done, value } = await reader.read();
-      const decodedData = decoder.decode(value, { stream: true });
-      const splitData = (decodedData.split("\n")).filter(item => item !== "");
+      buffer += decoder.decode(value, { stream: true });
+      const splitData = (buffer.split("\n")).filter(item => item !== "");
 
       for (let i = 0; i < splitData.length; i++) {
         const data = splitData[i]
 
         if (data === ": OPENROUTER PROCESSING") {
+          buffer = buffer.slice(data.length + 1)
           continue
         }
 
@@ -138,7 +140,16 @@ export class OpenRouterStream extends EventEmitter {
           return;
         }
 
-        this.emit("data", JSON.parse(data.split("data:")[1]))
+        let parsedData;
+        try {
+          parsedData = JSON.parse(data.split("data: ")[1])
+          buffer = buffer.slice(data.length + 1)
+        } catch (e) {
+          //ignore invalid json. It was probably cut in half
+          continue;
+        }
+
+        this.emit("data", parsedData)
       }
     }
   }
@@ -189,15 +200,18 @@ export class OpenRouterStream extends EventEmitter {
       choices: messages
     }
     whole.choices.push({ role: "user", content: "" }) //placeholder values that will be overwritten
+
+    let buffer = "";
     while (true) {
       const { done, value } = await reader.read();
-      const decodedData = decoder.decode(value, { stream: true });
-      const splitData = (decodedData.split("\n")).filter(item => item !== "");
+      buffer += decoder.decode(value, { stream: true });
+      const splitData = (buffer.split("\n")).filter(item => item !== "");
 
       for (let i = 0; i < splitData.length; i++) {
         const data = splitData[i]
 
         if (data === ": OPENROUTER PROCESSING") {
+          buffer = buffer.slice(data.length + 1)
           continue
         }
 
@@ -209,10 +223,11 @@ export class OpenRouterStream extends EventEmitter {
         let parsedData;
         try {
           parsedData = JSON.parse(data.split("data: ")[1])
+          buffer = buffer.slice(data.length + 1)
         } catch (e) {
-          this.emit('error', e);
+          //ignore invalid json. It was probably cut in half
+          continue;
         }
-
         if ('usage' in parsedData) {
           // The "finish_reason" that comes with the "usage" data is always null because it was set in the message that came just before the "usage" data. Avoid overwriting that
           whole.usage = parsedData.usage
