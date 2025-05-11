@@ -265,3 +265,5 @@ export class OpenRouterStream extends EventEmitter {
     }
   }
 }
+
+export * as types from "./types"
