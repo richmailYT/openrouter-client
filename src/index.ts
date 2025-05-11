@@ -22,7 +22,8 @@ export class OpenRouter {
 
   async chat(
     messages: Types.Message[],
-    config?: Types.Config
+    config?: Types.Config,
+    signal?: AbortSignal
   ): Promise<
     | { success: true; data: Types.ResponseSuccess }
     | {
@@ -30,7 +31,7 @@ export class OpenRouter {
       errorCode: number;
       errorMessage: string;
       metadata?: unknown;
-    }
+    } | { success: false, error: "AbortSignal" | unknown }
   > {
     config = config || this.globalConfig;
 
@@ -43,18 +44,31 @@ export class OpenRouter {
       extraHeaders['X-Title'] = config.xTitle;
     }
 
-    const request = await fetch(
-      'https://openrouter.ai/api/v1/chat/completions',
-      {
-        method: 'POST',
-        headers: {
-          ...extraHeaders,
-          Authorization: `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ messages: messages, ...config }),
+    let request;
+    try {
+      request = await fetch(
+        'https://openrouter.ai/api/v1/chat/completions',
+        {
+          method: 'POST',
+          signal: signal,
+          headers: {
+            ...extraHeaders,
+            Authorization: `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ messages: messages, ...config }),
+        }
+      );
+    } catch (e) {
+      if (typeof e == "object" && e !== null) {
+        if ("name" in e) {
+          if (e.name == "AbortError") {
+            return { success: false, error: "AbortError" }
+          }
+        }
       }
-    );
+      return { success: false, error: e }
+    }
     const response: Types.ResponseSuccess | Types.ResponseError = await request.json();
     if ('error' in response) {
       return {
