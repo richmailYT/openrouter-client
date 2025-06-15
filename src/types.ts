@@ -32,7 +32,7 @@ export type Config = {
     //Actual config
     // Docs for reasoning: https://openrouter.ai/docs/use-cases/reasoning-tokens
     reasoning?: {
-        exclude: false,
+        exclude: boolean,
         enabled: boolean
     } & ({
         effort: "high" | "medium" | "low"
