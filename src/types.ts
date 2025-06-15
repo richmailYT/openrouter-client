@@ -139,6 +139,7 @@ export interface ResponseChoiceNonStreaming {
     message: {
         content: string | null;
         role: string;
+        reasoning: string | null;
         tool_calls?: ToolCall[];
     };
     error?: Error;
