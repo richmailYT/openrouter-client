@@ -30,6 +30,16 @@ export type Config = {
     xTitle?: string;
 
     //Actual config
+    // Docs for reasoning: https://openrouter.ai/docs/use-cases/reasoning-tokens
+    reasoning: {
+        exclude: false,
+        enabled: boolean
+    } & ({
+        effort: "high" | "medium" | "low"
+    } | {
+        max_tokens: number
+    })
+
     response_format?: { type: 'json_object' } | {
         type: 'json_schema';
         json_schema: {
@@ -51,7 +61,6 @@ export type Config = {
 
     stop?: string | string[];
 
-    //For some reason, OpenRouter docs on https://openrouter.ai/docs/requests don't say they support this but https://openrouter.ai/docs/parameters  say they do
     min_p?: number // Range: (0, 1]
 
     // See LLM Parameters (openrouter.ai/docs/parameters)
