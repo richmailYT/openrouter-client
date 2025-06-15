@@ -203,7 +203,13 @@ export class OpenRouterStream extends EventEmitter {
     const reader = request.body.getReader();
     const decoder = new TextDecoder("utf-8");
 
-    let whole: { id: string, provider: string, model: string, object: string, created: number, finish_reason: string, choices: Types.Message[], usage?: { prompt_tokens: number, completion_tokens: number, total_tokens: number } } = {
+    let whole: {
+      id: string, provider: string, model: string, object: string, created: number, finish_reason: string, choices: {
+        role: 'system' | 'user' | 'assistant';
+        content: string | Types.VerboseContent[];
+        reasoning: string | null;
+      }[], usage?: { prompt_tokens: number, completion_tokens: number, total_tokens: number }
+    } = {
       id: "",
       provider: "",
       model: "",
@@ -211,9 +217,10 @@ export class OpenRouterStream extends EventEmitter {
       created: 0,
       finish_reason: "",
 
+      //@ts-ignore
       choices: messages
     }
-    whole.choices.push({ role: "user", content: "" }) //placeholder values that will be overwritten
+    whole.choices.push({ role: "user", content: "", reasoning: null }) //placeholder values that will be overwritten
 
     let buffer = "";
     while (true) {
@@ -259,6 +266,15 @@ export class OpenRouterStream extends EventEmitter {
         whole.choices.at(-1).role = parsedData.choices[0].delta.role
         //@ts-ignore
         whole.choices.at(-1).content += parsedData.choices[0].delta.content
+        //@ts-ignore
+        if ((whole.choices.at(-1).reasoning == null) && (parsedData.choices[0].delta.reasoning)) {
+          //@ts-ignore
+          whole.choices.at(-1).reasoning = ""
+        }
+        if (parsedData.choices[0].delta.reasoning) {
+          //@ts-ignore
+          whole.choices.at(-1).reasoning += parsedData.choices[0].delta.reasoning
+        }
 
         this.emit("data", whole)
       }
