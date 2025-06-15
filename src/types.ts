@@ -80,7 +80,8 @@ export type Config = {
     //openrouter.ai/docs/transforms
     transforms?: ['middle-out'] | [];
 } & ({
-    model: string[];
+    // Docs: openrouter.ai/docs/model-routing
+    models: string[];
     route: 'fallback';
 } | {
     model?: string;
