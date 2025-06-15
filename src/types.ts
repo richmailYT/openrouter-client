@@ -32,12 +32,12 @@ export type Config = {
     //Actual config
     // Docs for reasoning: https://openrouter.ai/docs/use-cases/reasoning-tokens
     reasoning?: {
-        exclude: boolean,
-        enabled: boolean
+        exclude?: boolean,
+        enabled?: boolean
     } & ({
-        effort: "high" | "medium" | "low"
+        effort?: "high" | "medium" | "low"
     } | {
-        max_tokens: number
+        max_tokens?: number
     })
 
     response_format?: { type: 'json_object' } | {
