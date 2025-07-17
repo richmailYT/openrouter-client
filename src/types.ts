@@ -7,8 +7,8 @@ export type Quantizations =
     | 'bf16'
     | 'unknown';
 
-type ResponseFormatTypes = "string" | "number" | "boolean";
-type ResponseFormatObject = {
+export type ResponseFormatTypes = "string" | "number" | "boolean";
+export type ResponseFormatObject = {
     type: "object";
     properties: Record<string, {
         type: ResponseFormatTypes | ResponseFormatTypes[];
@@ -19,7 +19,7 @@ type ResponseFormatObject = {
     additionalProperties?: boolean;
 };
 
-type ResponseFormatArray = {
+export type ResponseFormatArray = {
     type: "array";
     items: ResponseFormatObject | ResponseFormatArray;
 };
@@ -88,7 +88,7 @@ export type Config = {
     route?: undefined;
 })
 
-type FunctionDescription = {
+export type FunctionDescription = {
     description?: string;
     name: string;
     parameters: object; // JSON Schema object
