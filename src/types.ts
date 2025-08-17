@@ -74,6 +74,8 @@ export type Config = {
     repetition_penalty?: number; // Range: (0, 2]
     seed?: number; // OpenAI only
 
+    logit_bias?: { [key: number]: number };
+
     tools?: Tool[];
     tool_choice?: ToolChoice;
 
