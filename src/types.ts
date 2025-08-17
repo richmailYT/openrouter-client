@@ -66,6 +66,7 @@ export type Config = {
     // See LLM Parameters (openrouter.ai/docs/parameters)
     max_tokens?: number; // Range: [1, context_length)
     temperature?: number; // Range: [0, 2]
+    top_a?: number; // Range: [0, 1]
     top_p?: number; // Range: (0, 1]
     top_k?: number; // Range: [1, Infinity) Not available for OpenAI models
     frequency_penalty?: number; // Range: [-2, 2]
