@@ -79,6 +79,10 @@ export type Config = {
     //OpenRouter only. Will not be passed to providers
     //openrouter.ai/docs/transforms
     transforms?: ['middle-out'] | [];
+
+    // Reduce latency by providing the model with a predicted output
+    // https://platform.openai.com/docs/guides/latency-optimization#use-predicted-outputs
+    prediction?: { type: 'content'; content: string };
 } & ({
     // Docs: openrouter.ai/docs/model-routing
     models: string[];
