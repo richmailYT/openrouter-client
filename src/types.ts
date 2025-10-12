@@ -51,6 +51,7 @@ export type Config = {
 
     // https://openrouter.ai/docs/provider-routing
     provider?: {
+        only?: string[];
         order?: string[];
         ignore?: string[];
         quantizations?: Quantizations[];
@@ -86,6 +87,15 @@ export type Config = {
     // Reduce latency by providing the model with a predicted output
     // https://platform.openai.com/docs/guides/latency-optimization#use-predicted-outputs
     prediction?: { type: 'content'; content: string };
+
+    plugins?: [
+        {
+            id: 'file-parser',
+            pdf: {
+                engine: "mistral-ocr" | "pdf-text" | "native"
+            },
+        },
+    ],
 } & ({
     // Docs: openrouter.ai/docs/model-routing
     models: string[];
@@ -118,9 +128,10 @@ export type ToolChoice =
 
 export type VerboseContent = {}
     | { type: 'text'; content: string }
-    | { type: 'image_url'; image_url: { url: string } };
+    | { type: 'image_url'; image_url: { url: string } }
+    | { type: "file", file: { filename: string, file_data: string } };
 
-export interface Message {
+export type Message = {
     role: 'system' | 'user' | 'assistant';
     content: string | VerboseContent[];
 }
