@@ -3,7 +3,7 @@
   "description": "An API wrapper for OpenRouter",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "license": "MIT",
   "keywords": [
     "openrouter"
