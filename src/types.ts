@@ -126,8 +126,8 @@ export type ToolChoice =
         };
     };
 
-export type VerboseContent = {}
-    | { type: 'text'; content: string }
+export type VerboseContent =
+    { type: 'text'; content: string }
     | { type: 'image_url'; image_url: { url: string } }
     | { type: "file", file: { filename: string, file_data: string } };
 
